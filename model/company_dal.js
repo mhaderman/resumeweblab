@@ -84,7 +84,7 @@ var companyAddressInsert = function(company_id, addressIdArray, callback){
 
     // TO BULK INSERT RECORDS WE CREATE A MULTIDIMENSIONAL ARRAY OF THE VALUES
     var companyAddressData = [];
-    if (params.address_id.constructor === Array) {
+    if (addressIdArray.constructor === Array) {
         for (var i = 0; i < params.address_id.length; i++) {
             companyAddressData.push([company_id, params.address_id[i]]);
         }
