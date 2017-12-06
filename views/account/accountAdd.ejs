@@ -1,0 +1,47 @@
+<%- include("../includes/header.ejs", {title:"Add New Account"}); %>
+    <h1>Add New Account</h1>
+    <form action="/account/insert" method="get">
+        Account Email: <input id="email" name="email" type="text" />
+        <br />
+        <br />
+        Account First Name: <input id="first_name" name="first_name" type="text" />
+        <br />
+        <select id="school_id" name="school_id" multiple="multiple">
+            <% for(var i=0; school.length > i; i++ ) { %>
+                <option value="<%= school[i].school_id %>"><%= school[i].school_name%></option>
+            <% } %>
+        </select>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $('#school_id').multiselect();
+            });
+        </script><br />
+        <select id="skill_id" name="skill_id" multiple="multiple">
+            <% for(var i=0; skill.length > i; i++ ) { %>
+            <option value="<%= skill[i].skill_id %>"><%= skill[i].skill_name%></option>
+            <% } %>
+        </select>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $('#skill_id').multiselect();
+            });
+        </script><br />
+        <select id="company_id" name="company_id" multiple="multiple">
+            <% for(var i=0; company.length > i; i++ ) { %>
+            <option value="<%= company[i].company_id %>"><%= company[i].company_name%></option>
+            <% } %>
+        </select>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $('#company_id').multiselect();
+            });
+        </script>
+
+
+
+
+        <br />
+        <input type="submit" />
+
+    </form>
+<%- include("../includes/footer.ejs"); %>

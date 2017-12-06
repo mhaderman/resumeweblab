@@ -11,11 +11,11 @@
         <% for(var i=0; address.length > i; i++ ) {
             var selected = "";
 
-            if(address[i].company_id != null) {
+            if(address[i].address_id == company.company_id) {
                 selected = "selected";
             }
         %>
-        <option value="<%= address[i].address_id %>" <%= selected %> ><%= address[i].street + ', ' + address[i].zip_code %></option>
+            <option value="<%= address[i].address_id %>" <%= selected %> ><%= address[i].street + ', ' + address[i].zip_code %></option>
         <% } %>
     </select>
 

@@ -6,4 +6,5 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'CS355' });
 });
 
+
 module.exports = router;

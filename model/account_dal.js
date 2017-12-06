@@ -11,20 +11,18 @@ var connection = mysql.createConnection(db.config);
 
  */
 
+
 exports.getAll = function(callback) {
-    var query = 'SELECT * FROM company;';
+    var query = 'SELECT * FROM account;';
 
     connection.query(query, function(err, result) {
         callback(err, result);
     });
 };
 
-exports.getById = function(company_id, callback) {
-    var query = 'SELECT c.*, a.street, a.zip_code FROM company c ' +
-        'LEFT JOIN company_address ca on ca.company_id = c.company_id ' +
-        'LEFT JOIN address a on a.address_id = ca.address_id ' +
-        'WHERE c.company_id = ?';
-    var queryData = [company_id];
+exports.getById = function(account_id, callback) {
+    var query = 'call account_getinfo(?)';
+    var queryData = [account_id];
     console.log(query);
 
     connection.query(query, queryData, function(err, result) {
@@ -33,44 +31,74 @@ exports.getById = function(company_id, callback) {
     });
 };
 
-exports.insert = function(params, callback) {
+exports.getAddAccount = function( callback){
+    var query = "call newaccount_getinfo();";
+    console.log(query);
+    connection.query(query, function(err, result){
+        callback(err, result);
+    });
+};
 
-    // FIRST INSERT THE COMPANY
-    var query = 'INSERT INTO account (company_name) VALUES (?)';
+exports.insert = function( params, callback) {
+    var query = 'insert into account( email, first_name, last_name) values(? , ? , ?)';
+    console.log(params);
+    var queryData = [ params.email, params.first_name, params.last_name];
 
-    var queryData = [params.company_name];
-
-    connection.query(query, params.company_name, function(err, result) {
-        console.log(err);
-        // THEN USE THE COMPANY_ID RETURNED AS insertId AND THE SELECTED ADDRESS_IDs INTO COMPANY_ADDRESS
-        var company_id = result.company_id;
-
-        // NOTE THAT THERE IS ONLY ONE QUESTION MARK IN VALUES ?
-        var query = 'INSERT INTO company_address (company_id, address_id) VALUES ?';
-
-        // TO BULK INSERT RECORDS WE CREATE A MULTIDIMENSIONAL ARRAY OF THE VALUES
-        var companyAddressData = [];
-        if (params.address_id.constructor === Array) {
-            for (var i = 0; i < params.address_id.length; i++) {
-                companyAddressData.push([company_id, params.address_id[i]]);
-            }
-        }
-        else {
-            companyAddressData.push([company_id, params.address_id]);
-        }
-
-        // NOTE THE EXTRA [] AROUND companyAddressData
-        connection.query(query, [companyAddressData], function(err, result){
-            callback(err, result);
-        });
+    connection.query(query, queryData, function(err, result) {
+        callback(err, result);
     });
 
 };
 
-exports.delete = function(company_id, callback) {
-    var query = 'DELETE FROM company WHERE company_id = ?';
-    var queryData = [company_id];
+exports.insertSkills = function( account_id, skill_id, callback) {
+    var query = 'insert into account_skill( account_id, skill_id) values ?';
 
+    var queryData = [ account_id, skill_id];
+    var values = [];
+    for( var i = 0 ; i < skill_id.length ; i++){
+        values[i] = [ account_id, parseInt(skill_id[i]) ];
+    }
+    console.log(values);
+    connection.query( query, [values], function(err, result) {
+        callback(err, result);
+    });
+};
+
+
+exports.insertCompanies = function( account_id, company_id, callback) {
+    var query = 'insert into account_company( account_id, company_id) values ?';
+
+    var queryData = [ account_id, company_id];
+    var values = [];
+    for( var i = 0 ; i < company_id.length ; i++){
+        values[i] = [ account_id, parseInt(company_id[i]) ];
+    }
+    console.log(values);
+    connection.query( query, [values], function(err, result) {
+        callback(err, result);
+    });
+};
+
+exports.insertSchools = function( account_id, school_id, callback) {
+    var query = 'insert into account_school( account_id, school_id) values ?';
+
+    var queryData = [ account_id, school_id];
+    var values = [];
+    console.log('account_id',account_id);
+    console.log('school_id',school_id);
+    for( var i = 0 ; i < school_id.length ; i++){
+        values[i] = [ account_id, parseInt(school_id[i]) ];
+    }
+    connection.query( query, [values], function(err, result) {
+        callback(err, result);
+    });
+};
+
+
+exports.delete = function(company_id, callback) {
+    var query = 'DELETE FROM account WHERE account_id = ?';
+    var queryData = [company_id];
+    console.log('delete', company_id);
     connection.query(query, queryData, function(err, result) {
         callback(err, result);
     });
@@ -85,12 +113,12 @@ var companyAddressInsert = function(company_id, addressIdArray, callback){
     // TO BULK INSERT RECORDS WE CREATE A MULTIDIMENSIONAL ARRAY OF THE VALUES
     var companyAddressData = [];
     if (addressIdArray.constructor === Array) {
-        for (var i = 0; i < addressIdArray.length; i++) {
-            companyAddressData.push([company_id, addressIdArray[i]]);
+        for (var i = 0; i < params.address_id.length; i++) {
+            companyAddressData.push([company_id, params.address_id[i]]);
         }
     }
     else {
-        companyAddressData.push([company_id, addressIdArray]);
+        companyAddressData.push([company_id, params.address_id]);
     }
     connection.query(query, [companyAddressData], function(err, result){
         callback(err, result);
@@ -132,29 +160,11 @@ exports.update = function(params, callback) {
     });
 };
 
-/*  Stored procedure used in this example
-     DROP PROCEDURE IF EXISTS company_getinfo;
 
-     DELIMITER //
-     CREATE PROCEDURE company_getinfo (company_id int)
-     BEGIN
 
-     SELECT * FROM company WHERE company_id = _company_id;
-
-     SELECT a.*, s.company_id FROM address a
-     LEFT JOIN company_address s on s.address_id = a.address_id AND company_id = _company_id;
-
-     END //
-     DELIMITER ;
-
-     # Call the Stored Procedure
-     CALL company_getinfo (4);
-
- */
-
-exports.edit = function(company_id, callback) {
-    var query = 'CALL company_getinfo(?)';
-    var queryData = [company_id];
+exports.edit = function(account_id, callback) {
+    var query = 'CALL account_getinfo(?)';
+    var queryData = [account_id];
 
     connection.query(query, queryData, function(err, result) {
         callback(err, result);

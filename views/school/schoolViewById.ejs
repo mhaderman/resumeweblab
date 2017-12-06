@@ -1,0 +1,11 @@
+<%- include("../includes/header.ejs", {title:"School - " + result[0][0].school_name}); %>
+    <h1>School</h1>
+    <ul>
+        <li>School Name: <%= result[0][0].school_name %></li>
+        <li>School Address: <%= result[0][0].street + ',' + result[0][0].zip_code%></li>
+    </ul>
+
+<a href="/skill/all"><< back</a>
+
+<%- include("../includes/footer.ejs"); %>
+
