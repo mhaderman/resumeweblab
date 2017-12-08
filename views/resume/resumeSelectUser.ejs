@@ -1,0 +1,12 @@
+<%- include("../includes/header.ejs", {title:"Select User"}); %>
+<h1>Select User</h1>
+<form action="/resume/add" method="get">
+    <select name="account_id">
+        <% for(var i=0; user.length > i; i++ ) { %>
+        <option value="<%= user[i].account_id %>"><%= user[i].email %></option>
+        <% } %>
+    </select>
+    <input type="submit" />
+
+</form>
+<%- include("../includes/footer.ejs"); %>
